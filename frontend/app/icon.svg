@@ -1,0 +1,17 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="132" fill="url(#tasteflix-bg)"/>
+  <rect x="30" y="30" width="452" height="452" rx="110" stroke="rgba(255,255,255,0.12)" stroke-width="10"/>
+  <path d="M118 370V142H172L284 278V142H364V370H311L198 232V370H118Z" fill="white"/>
+  <path d="M333 142H394L271 370H210L333 142Z" fill="url(#tasteflix-beam)"/>
+  <defs>
+    <linearGradient id="tasteflix-bg" x1="63" y1="54" x2="429" y2="468" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08101F"/>
+      <stop offset="0.38" stop-color="#15162B"/>
+      <stop offset="1" stop-color="#07111F"/>
+    </linearGradient>
+    <linearGradient id="tasteflix-beam" x1="394" y1="140" x2="230" y2="377" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB7185"/>
+      <stop offset="1" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+</svg>
