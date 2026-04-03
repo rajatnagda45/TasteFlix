@@ -18,7 +18,7 @@ TasteFlix is a full-stack AI-powered movie recommendation platform that delivers
 - 🕘 Recommendation History Tracking
 - 🔎 Smart Search & Exploration
 - 🎥 Similar Movies Engine
-- 🇮🇳 Bollywood + Hollywood Integration (TMDB API)
+- 🇮🇳 Bollywood + Hollywood Integration
 
 ---
 
