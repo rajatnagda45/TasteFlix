@@ -38,7 +38,7 @@ Hybrid Recommendation System:
 
 ### 🔹 Data Sources
 - MovieLens Dataset (for training)
-- TMDB API (for posters, metadata, Bollywood movies)
+- Self Dataset (for additional training) 
 
 ---
 
@@ -61,9 +61,6 @@ Hybrid Recommendation System:
 ### 🔐 Authentication & DB
 - Firebase Authentication
 - Firebase Firestore (user data, preferences)
-
-### 🌐 APIs
-- TMDB API (movie metadata, posters)
 
 ### 🚀 Deployment
 - Frontend → Vercel  
