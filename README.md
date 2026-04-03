@@ -221,4 +221,4 @@ This project demonstrates:
 
 TasteFlix is not just a project — it's a complete AI-driven product that blends machine learning, user experience, and real-world system design.
 
-> “From data → intelligence → experience.”
+> “From data → intelligence → experience .”
