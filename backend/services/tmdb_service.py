@@ -45,7 +45,7 @@ class TmdbService:
         query = urlencode({"api_key": self.api_key, **params})
         url = f"{self.base_url}{path}?{query}"
         try:
-            with urlopen(url, timeout=8, context=SSL_CONTEXT) as response:
+            with urlopen(url, timeout=4, context=SSL_CONTEXT) as response:
                 return loads(response.read().decode("utf-8"))
         except (HTTPError, URLError, TimeoutError):
             return None
@@ -82,7 +82,10 @@ class TmdbService:
         if not results:
             return None
 
-        return self._build_match(results[0])
+        match = self._build_match(results[0])
+        if match.tmdb_id and (not match.genres or not match.overview):
+            return self.get_movie(match.tmdb_id) or match
+        return match
 
     def get_movie(self, tmdb_id: int) -> TmdbMovieMatch | None:
         payload = self._request(f"/movie/{tmdb_id}", {})

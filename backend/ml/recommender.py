@@ -34,6 +34,17 @@ INDIAN_CINEMA_TERMS = {
     "tollywood",
     "sandalwood",
 }
+GENRE_HINTS = {
+    "action": {"action", "fight", "fighting", "shooter", "lethal", "bloody", "ruthless", "mission", "army", "military"},
+    "crime": {"crime", "gang", "gangs", "gangster", "underworld", "mafia", "corrupt", "corruption", "police", "cop", "murder"},
+    "thriller": {"thriller", "mysterious", "mystery", "spy", "espionage", "terror", "terrorist", "conspiracy", "revenge"},
+    "war": {"war", "soldier", "army", "military", "patriot", "country", "border"},
+    "romance": {"romance", "love", "wedding", "bride"},
+    "comedy": {"comedy", "funny", "comic"},
+    "historical": {"historical", "history", "period"},
+}
+ACTION_CLUSTER = {"action", "crime", "thriller", "war"}
+INVALID_GENRE_TOKENS = {"nan", "none", "unknown", "genre", "unavailable"}
 
 
 @dataclass
@@ -125,6 +136,46 @@ class HybridRecommender:
         tokens.update(self._tokenize_text(movie.overview))
         return tokens
 
+    def _genre_tokens(self, movie: Movie) -> set[str]:
+        genres = {
+            token
+            for token in self._tokenize_text(movie.genres)
+            if token not in INVALID_GENRE_TOKENS
+        }
+        evidence_tokens = self._movie_tokens(movie)
+        for genre, hints in GENRE_HINTS.items():
+            if evidence_tokens.intersection(hints):
+                genres.add(genre)
+        return genres
+
+    def _selected_genre_tokens(self, selected_movies: list[Movie]) -> set[str]:
+        selected_genres: set[str] = set()
+        for selected in selected_movies:
+            selected_genres.update(self._genre_tokens(selected))
+        return selected_genres
+
+    def _max_selected_year(self, selected_movies: list[Movie]) -> int | None:
+        years = [movie.year for movie in selected_movies if movie.year]
+        return max(years) if years else None
+
+    def _year_affinity(self, movie: Movie, selected_movies: list[Movie]) -> float:
+        selected_year = self._max_selected_year(selected_movies)
+        if not selected_year or not movie.year:
+            return 0.7
+        year_gap = abs(selected_year - movie.year)
+        if selected_year >= 2020:
+            if movie.year < selected_year - 12:
+                return 0.05
+            if movie.year < selected_year - 8:
+                return 0.35
+        if year_gap <= 3:
+            return 1.0
+        if year_gap <= 8:
+            return 0.85
+        if year_gap <= 15:
+            return 0.6
+        return 0.25
+
     def _movie_profile_tokens(self, movie: Movie) -> set[str]:
         return self._movie_tokens(movie)
 
@@ -153,6 +204,7 @@ class HybridRecommender:
         selected_token_sets = [self._movie_profile_tokens(movie) for movie in selected_movies]
         combined_selected_tokens = set().union(*selected_token_sets) if selected_token_sets else set()
         selected_indian_affinity = self._indian_affinity(combined_selected_tokens)
+        selected_genres = self._selected_genre_tokens(selected_movies)
 
         scores: dict[int, float] = {}
         candidate_movies = db.scalars(select(Movie)).all()
@@ -176,12 +228,20 @@ class HybridRecommender:
                 continue
 
             score = max(overlap_scores)
+            candidate_genres = self._genre_tokens(movie)
+            if selected_genres and candidate_genres:
+                genre_overlap = len(selected_genres.intersection(candidate_genres)) / max(1, len(selected_genres))
+                score += 0.35 * genre_overlap
+            elif selected_genres:
+                score *= 0.45
+
             candidate_indian_affinity = self._indian_affinity(self._movie_indian_signal_tokens(movie))
             if selected_indian_affinity > 0 and candidate_indian_affinity > 0:
-                score += 0.55 * min(selected_indian_affinity, candidate_indian_affinity)
+                score += 0.12 * min(selected_indian_affinity, candidate_indian_affinity)
             elif selected_indian_affinity > 0 and candidate_indian_affinity == 0:
                 score *= 0.35
 
+            score *= self._year_affinity(movie, selected_movies)
             scores[movie.id] = float(min(score, 1.0))
         return scores
 
@@ -254,13 +314,8 @@ class HybridRecommender:
             if self._indian_affinity(selected_tokens) > 0 and self._indian_affinity(movie_tokens) > 0:
                 reasons.append("keeps you in the lane of Indian and Bollywood cinema")
 
-            selected_genres = {
-                genre.strip()
-                for selected in selected_movies
-                for genre in (selected.genres or "").split()
-                if genre.strip()
-            }
-            movie_genres = {genre.strip() for genre in (movie.genres or "").split() if genre.strip()}
+            selected_genres = self._selected_genre_tokens(selected_movies)
+            movie_genres = self._genre_tokens(movie)
             overlap = sorted(selected_genres.intersection(movie_genres))[:2]
             if overlap:
                 reasons.append(f"shares your taste for {' and '.join(overlap)} stories")
@@ -277,17 +332,14 @@ class HybridRecommender:
     def _genre_match_percent(self, movie: Movie, selected_movies: list[Movie]) -> int:
         if not selected_movies:
             return 0
-        selected_genres = {
-            genre.strip().lower()
-            for selected in selected_movies
-            for genre in (selected.genres or "").split()
-            if genre.strip()
-        }
-        movie_genres = {genre.strip().lower() for genre in (movie.genres or "").split() if genre.strip()}
+        selected_genres = self._selected_genre_tokens(selected_movies)
+        movie_genres = self._genre_tokens(movie)
         if not selected_genres or not movie_genres:
             return 0
         overlap = len(selected_genres.intersection(movie_genres))
-        return int(round((overlap / max(1, len(selected_genres))) * 100))
+        if overlap <= 0:
+            return 0
+        return int(round((overlap / max(1, min(len(selected_genres), len(movie_genres)))) * 100))
 
     def _similar_users_rating(self, collaborative_score: float) -> float | None:
         if collaborative_score <= 0:
@@ -338,7 +390,10 @@ class HybridRecommender:
             reasons.append(f"Matches your genre preference ({genre_match}%)")
         elif collaborative_score > 0.15:
             reasons.append("Low genre match (0%), but similar user behavior strongly supports it")
-        reasons.append(f"High similarity score ({content_score:.2f})")
+        if content_score >= 0.25:
+            reasons.append(f"High similarity score ({content_score:.2f})")
+        elif genre_match > 0:
+            reasons.append("Recommended because the genre signal is stronger than the title similarity")
         return reasons
 
     def recommend(
@@ -354,6 +409,9 @@ class HybridRecommender:
         )
         selected_profile_tokens = set().union(*(self._movie_profile_tokens(movie) for movie in selected_movies))
         selected_indian_affinity = self._indian_affinity(selected_profile_tokens)
+        selected_genres = self._selected_genre_tokens(selected_movies)
+        selected_action_genres = selected_genres.intersection(ACTION_CLUSTER)
+        selected_year = self._max_selected_year(selected_movies)
 
         artifact_content_scores = self._content_scores([movie.source_movie_id for movie in selected_movies])
         db_content_scores = self._database_content_scores(db, selected_movies)
@@ -374,13 +432,26 @@ class HybridRecommender:
             collaborative = collaborative_scores.get(movie.id, 0.0)
             popularity = popularity_scores.get(movie.id, 0.15)
             candidate_indian_affinity = self._indian_affinity(self._movie_indian_signal_tokens(movie))
+            genre_match_percent = self._genre_match_percent(movie, selected_movies)
+            candidate_genres = self._genre_tokens(movie)
+            year_affinity = self._year_affinity(movie, selected_movies)
             if selected_indian_affinity >= 0.4:
                 if candidate_indian_affinity > 0:
-                    content = min(1.0, content + (0.2 * candidate_indian_affinity))
+                    content = min(1.0, content + (0.08 * candidate_indian_affinity))
                     popularity = min(1.0, popularity + 0.1)
                 else:
-                    popularity *= 0.35
-                    collaborative *= 0.6
+                    continue
+
+                if selected_genres and genre_match_percent == 0 and content < 0.85:
+                    continue
+
+                if selected_action_genres and not candidate_genres.intersection(ACTION_CLUSTER):
+                    continue
+
+                if selected_year and selected_year >= 2020 and movie.year and movie.year < selected_year - 12:
+                    continue
+
+            content *= year_affinity
             score = (0.6 * content) + (0.25 * collaborative) + (0.15 * popularity)
             if score <= 0:
                 continue
@@ -395,7 +466,7 @@ class HybridRecommender:
                     because_you_liked=self._because_you_liked(movie, selected_movies),
                     why_recommended=self._why_recommended(movie, selected_movies, collaborative, content),
                     similarity_score=round(content, 2),
-                    genre_match_percent=self._genre_match_percent(movie, selected_movies),
+                    genre_match_percent=genre_match_percent,
                     similar_users_rating=self._similar_users_rating(collaborative),
                 )
             )

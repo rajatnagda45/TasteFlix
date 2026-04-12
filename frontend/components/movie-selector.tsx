@@ -13,8 +13,14 @@ interface SelectedMovie {
 
 export function MovieSelector({
   onChange,
+  onGenerate,
+  generating = false,
+  error,
 }: {
   onChange: (items: { movie_id: number; rating: number }[]) => void;
+  onGenerate: () => void;
+  generating?: boolean;
+  error?: string;
 }) {
   const [query, setQuery] = useState("");
   const [catalog, setCatalog] = useState<Movie[]>([]);
@@ -60,15 +66,29 @@ export function MovieSelector({
   return (
     <div className="space-y-8">
       <div className="rounded-[28px] border border-white/10 bg-white/5 p-5">
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search by title, genre, or director"
-          className="w-full rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-white outline-none ring-0 placeholder:text-slate-500"
-        />
-        <p className="mt-3 text-sm text-slate-400">
-          Pick at least 3 movies you love so TasteFlix can learn your vibe.
-        </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by title, genre, or director"
+            className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-white outline-none ring-0 placeholder:text-slate-500"
+          />
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={generating || selected.length === 0}
+            className="rounded-full bg-glow px-6 py-4 text-sm font-bold uppercase tracking-[0.25em] text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {generating ? "Generating..." : "Get Recommendations"}
+          </button>
+        </div>
+        <div className="mt-3 flex flex-col gap-2 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>Select atleast 1 movie to get recommendations. Add more if you want a sharper taste profile.</p>
+          <p className={selected.length ? "text-emerald-300" : "text-slate-500"}>
+            {selected.length} selected
+          </p>
+        </div>
+        {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
       </div>
 
       {selected.length > 0 && (
@@ -100,16 +120,16 @@ export function MovieSelector({
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {isPending
           ? Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="aspect-[2/3] animate-pulse rounded-3xl bg-white/10" />
-            ))
+            <div key={index} className="aspect-[2/3] animate-pulse rounded-3xl bg-white/10" />
+          ))
           : catalog.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                selected={selected.some((item) => item.movie.id === movie.id)}
-                onSelect={() => toggleMovie(movie)}
-              />
-            ))}
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              selected={selected.some((item) => item.movie.id === movie.id)}
+              onSelect={() => toggleMovie(movie)}
+            />
+          ))}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 
+import { SafePoster } from "@/components/safe-poster";
 import { Movie } from "@/types";
 
 interface MovieCardProps {
@@ -22,8 +23,12 @@ export function MovieCard({ movie, subtitle, onSelect, selected }: MovieCardProp
       }`}
     >
       <div className="relative aspect-[2/3] w-full overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={movie.poster_url || ""} alt={movie.title} className="h-full w-full object-cover" />
+        <SafePoster
+          src={movie.poster_url}
+          title={movie.title}
+          year={movie.year}
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <p className="text-xs uppercase tracking-[0.3em] text-rose-200">

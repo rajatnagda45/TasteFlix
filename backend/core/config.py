@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +25,13 @@ class Settings(BaseSettings):
     unsplash_access_key: str | None = None
     unsplash_secret_key: str | None = None
     unsplash_base_url: str = "https://api.unsplash.com"
+
+    @field_validator("debug", mode="before")
+    @classmethod
+    def parse_debug(cls, value):
+        if isinstance(value, str) and value.lower() in {"release", "production", "prod"}:
+            return False
+        return value
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",

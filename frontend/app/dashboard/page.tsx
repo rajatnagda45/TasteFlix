@@ -12,19 +12,39 @@ export default function DashboardPage() {
   const [hollywood, setHollywood] = useState<Movie[]>([]);
   const [bollywood, setBollywood] = useState<Movie[]>([]);
   const [catalog, setCatalog] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState({ hollywood: true, bollywood: true, catalog: true });
 
   useEffect(() => {
-    async function load() {
-      const [hollywoodItems, bollywoodItems, catalogItems] = await Promise.all([
-        api.trending(),
-        api.bollywood(),
-        api.movies(),
-      ]);
-      setHollywood(hollywoodItems);
-      setBollywood(bollywoodItems);
-      setCatalog(catalogItems);
+    let active = true;
+
+    async function loadSection(
+      key: keyof typeof loading,
+      fetcher: () => Promise<Movie[]>,
+      setter: (movies: Movie[]) => void,
+    ) {
+      try {
+        const movies = await fetcher();
+        if (active) {
+          setter(movies);
+        }
+      } catch {
+        if (active) {
+          setter([]);
+        }
+      } finally {
+        if (active) {
+          setLoading((current) => ({ ...current, [key]: false }));
+        }
+      }
     }
-    load();
+
+    loadSection("hollywood", api.trending, setHollywood);
+    loadSection("bollywood", api.bollywood, setBollywood);
+    loadSection("catalog", () => api.movies(), setCatalog);
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -53,16 +73,20 @@ export default function DashboardPage() {
           title="Hollywood Hits"
           caption="Popular English-language favorites from the MovieLens-powered catalog."
           movies={hollywood}
+          loading={loading.hollywood}
         />
         <SectionRow
           title="Bollywood Picks"
-          caption="Indian and Hindi-language standouts surfaced directly from TMDB."
+          caption="Indian and Hindi-language standouts from the local catalog, enriched by TMDB when synced."
           movies={bollywood}
+          loading={loading.bollywood}
+          emptyMessage="No Bollywood picks found locally yet. Run the TMDB sync from the backend admin endpoint to enrich more."
         />
         <SectionRow
           title="Browse the Catalog"
           caption="A broader mix from the recommendation catalog."
           movies={catalog}
+          loading={loading.catalog}
         />
       </div>
     </main>

@@ -85,10 +85,18 @@ def build_unsplash_query(movie: Movie) -> str:
 
 def upsert_tmdb_movie(db: Session, match) -> Movie:
     tags = "bollywood indian cinema hindi" if match.original_language in INDIAN_LANGUAGE_CODES else "tmdb search"
-    movie = db.scalar(select(Movie).where(Movie.tmdb_id == match.tmdb_id))
+    source_movie_id = TMDB_SOURCE_OFFSET + match.tmdb_id
+    movie = db.scalar(
+        select(Movie).where(
+            or_(
+                Movie.tmdb_id == match.tmdb_id,
+                Movie.source_movie_id == source_movie_id,
+            )
+        )
+    )
     if not movie:
         movie = Movie(
-            source_movie_id=TMDB_SOURCE_OFFSET + match.tmdb_id,
+            source_movie_id=source_movie_id,
             title=match.title or "Untitled",
             year=match.year,
             tmdb_id=match.tmdb_id,

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useState } from "react";
 
+import { SafePoster } from "@/components/safe-poster";
 import { api } from "@/services/api";
 import { Movie, Recommendation } from "@/types";
 
@@ -90,10 +91,10 @@ export function RecommendationGrid({ items, onFeedback, refreshing = false }: Re
             >
               <div className="grid gap-4 p-4 sm:grid-cols-[120px,1fr]">
                 <button type="button" onClick={() => openSimilarMovies(item.movie)} className="text-left">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <SafePoster
                     src={item.movie.poster_url || ""}
-                    alt={item.movie.title}
+                    title={item.movie.title}
+                    year={item.movie.year}
                     className="aspect-[2/3] w-full rounded-2xl object-cover transition hover:scale-[1.02]"
                   />
                 </button>
@@ -208,43 +209,78 @@ export function RecommendationGrid({ items, onFeedback, refreshing = false }: Re
       </div>
 
       {similarForMovie ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 md:items-center">
-          <div className="w-full max-w-5xl rounded-[32px] border border-white/10 bg-[#0f1324] p-6 shadow-card">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-sky-200">Similar Movies</p>
-                <h3 className="mt-2 text-3xl font-black text-white">{similarForMovie.title}</h3>
-                <p className="mt-2 text-slate-400">Content neighbors discovered through cosine similarity.</p>
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-hidden bg-[#020617]/95 p-4 md:items-center">
+          <div className="pointer-events-none absolute -left-24 top-10 h-80 w-80 rounded-full bg-rose-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-sky-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(255,255,255,0.08),transparent_28%),linear-gradient(135deg,rgba(15,23,42,0.7),rgba(2,6,23,0.98))]" />
+          <div className="relative max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-[36px] border border-white/15 bg-slate-950/85 shadow-[0_30px_120px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-500 via-amber-300 to-sky-400" />
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.03]">
+              <div className="grid gap-5 p-6 sm:grid-cols-[86px,1fr] sm:items-center">
+                <div className="hidden overflow-hidden rounded-2xl border border-white/10 bg-black/40 sm:block">
+                  <SafePoster
+                    src={similarForMovie.poster_url}
+                    title={similarForMovie.title}
+                    year={similarForMovie.year}
+                    className="aspect-[2/3] h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm uppercase tracking-[0.3em] text-sky-200">Similar Movies</p>
+                  <h3 className="mt-2 text-2xl font-black text-white md:text-4xl">{similarForMovie.title}</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+                    A curated similarity set from TasteFlix based on genre, tags, story signals, and recommendation distance.
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSimilarForMovie(null)}
-                className="rounded-full border border-white/10 p-2 text-slate-300 transition hover:text-white"
+                className="m-6 rounded-full border border-white/10 bg-white/10 p-2 text-slate-300 transition hover:bg-white/15 hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="mt-6">
+            <div className="max-h-[60vh] overflow-y-auto p-5">
               {similarLoading ? (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-slate-300">
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center text-slate-300">
                   Finding the closest matches...
                 </div>
+              ) : similarMovies.length === 0 ? (
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center text-slate-300">
+                  No close matches found yet.
+                </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-3">
                   {similarMovies.map((movie) => (
-                    <div key={movie.id} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-                      <div className="relative aspect-[2/3] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={movie.poster_url || ""} alt={movie.title} className="h-full w-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <p className="text-xs uppercase tracking-[0.25em] text-rose-200">{movie.year || "Pick"}</p>
-                          <h4 className="mt-2 text-xl font-bold text-white">{movie.title}</h4>
-                          <p className="mt-2 text-sm text-slate-300">{movie.genres || "Genre unavailable"}</p>
-                        </div>
+                    <article
+                      key={movie.id}
+                      className="grid grid-cols-[82px,1fr] gap-4 rounded-3xl border border-white/10 bg-white/[0.055] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition hover:border-sky-300/40 hover:bg-white/[0.09]"
+                    >
+                      <div className="overflow-hidden rounded-2xl bg-black/30">
+                        <SafePoster
+                          src={movie.poster_url}
+                          title={movie.title}
+                          year={movie.year}
+                          className="aspect-[2/3] h-full w-full object-cover"
+                        />
                       </div>
-                    </div>
+                      <div className="min-w-0 py-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-rose-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-rose-200">
+                            {movie.year || "Pick"}
+                          </span>
+                          <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-200">
+                            {movie.genres || "Genre unavailable"}
+                          </span>
+                        </div>
+                        <h4 className="mt-3 line-clamp-2 text-xl font-bold text-white">{movie.title}</h4>
+                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">
+                          {movie.overview || movie.tags || "A close content neighbor from the TasteFlix catalog."}
+                        </p>
+                      </div>
+                    </article>
                   ))}
                 </div>
               )}

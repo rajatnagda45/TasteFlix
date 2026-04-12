@@ -15,8 +15,8 @@ export default function TastePage() {
   const [loading, setLoading] = useState(false);
 
   async function generateRecommendations() {
-    if (selectedMovies.length < 3) {
-      setError("Pick at least 3 favorite movies to generate meaningful recommendations.");
+    if (selectedMovies.length < 1) {
+      setError("Pick at least 1 movie to generate recommendations.");
       return;
     }
     setLoading(true);
@@ -54,19 +54,12 @@ export default function TastePage() {
       </section>
 
       <div className="mt-10">
-        <MovieSelector onChange={setSelectedMovies} />
-      </div>
-
-      {error ? <p className="mt-6 text-sm text-rose-300">{error}</p> : null}
-
-      <div className="mt-8 flex justify-end">
-        <button
-          onClick={generateRecommendations}
-          disabled={loading}
-          className="rounded-full bg-glow px-6 py-4 text-sm font-bold uppercase tracking-[0.25em] text-white disabled:opacity-60"
-        >
-          {loading ? "Generating..." : "Get Recommendations"}
-        </button>
+        <MovieSelector
+          onChange={setSelectedMovies}
+          onGenerate={generateRecommendations}
+          generating={loading}
+          error={error}
+        />
       </div>
     </main>
   );

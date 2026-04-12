@@ -12,7 +12,7 @@ from routes.history import router as history_router
 from routes.movies import router as movies_router
 from routes.recommend import router as recommend_router
 from services.recommendation_service import RecommendationService
-from services.seed_service import enrich_movies_with_tmdb, seed_movies
+from services.seed_service import seed_movies
 
 
 settings = get_settings()
@@ -23,7 +23,6 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         seed_movies(db)
-        enrich_movies_with_tmdb(db, limit=40)
 
     recommender = HybridRecommender.load_or_train()
     app.state.recommender = recommender
