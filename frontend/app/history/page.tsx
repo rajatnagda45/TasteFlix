@@ -23,16 +23,16 @@ export default function HistoryPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <section className="rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-card">
+    <main className="page-shell max-w-6xl py-8">
+      <section className="cinema-panel p-8 sm:p-10">
         <p className="text-sm uppercase tracking-[0.35em] text-sky-200">Recommendation History</p>
-        <h1 className="mt-4 text-4xl font-black text-white">Your previous AI-curated sessions</h1>
+        <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">Your previous AI-curated sessions</h1>
       </section>
 
-      <div className="mt-10 space-y-4">
+      <div className="mt-10 space-y-5">
         {items.length ? (
           items.map((item) => (
-            <article key={item.id} className="rounded-[28px] border border-white/10 bg-panel/80 p-5 shadow-card">
+            <article key={item.id} className="cinema-panel p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="text-2xl font-semibold text-white">{item.movie.title}</h2>
@@ -45,7 +45,7 @@ export default function HistoryPage() {
             </article>
           ))
         ) : (
-          <div className="rounded-[28px] border border-white/10 bg-white/5 p-8 text-center text-slate-400">
+          <div className="cinema-panel p-8 text-center text-slate-400">
             Sign in and generate recommendations to see your history here.
           </div>
         )}

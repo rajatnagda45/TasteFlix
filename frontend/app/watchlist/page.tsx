@@ -27,12 +27,12 @@ export default function WatchlistPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <section className="rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-card">
+    <main className="page-shell py-8">
+      <section className="cinema-panel p-8 sm:p-10">
         <p className="text-sm uppercase tracking-[0.35em] text-sky-200">Want to Watch</p>
-        <h1 className="mt-4 text-4xl font-black text-white">All the movies you liked, saved in one place.</h1>
+        <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl">All the movies you liked, saved in one place.</h1>
         <p className="mt-4 text-slate-300">
-          Every time you press like on a recommendation, it appears here so you can revisit it later.
+          Every time you press Want to Watch on a recommendation, it appears here so you can revisit it later.
         </p>
       </section>
 

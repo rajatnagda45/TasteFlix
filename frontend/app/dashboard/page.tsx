@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import { SectionRow } from "@/components/section-row";
 import { api } from "@/services/api";
@@ -48,12 +49,17 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <section className="rounded-[36px] border border-white/10 bg-white/5 p-8 shadow-card">
+    <main className="page-shell py-8">
+      <motion.section
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeInOut" }}
+        className="cinema-panel p-8 sm:p-10"
+      >
         <p className="text-sm uppercase tracking-[0.35em] text-rose-200">Your AI cinema companion</p>
         <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-4xl font-black text-white">Find a movie that actually fits tonight.</h1>
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Find a movie that actually fits tonight.</h1>
             <p className="mt-4 max-w-2xl text-slate-300">
               Start with a few movies you love, then let TasteFlix generate recommendations with
               confidence scores and explainable reasoning.
@@ -61,14 +67,14 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/taste"
-            className="rounded-full bg-glow px-6 py-4 text-sm font-bold uppercase tracking-[0.25em] text-white"
+            className="premium-button bg-[linear-gradient(135deg,rgba(244,63,94,0.96),rgba(168,85,247,0.86),rgba(56,189,248,0.88))] px-6 py-4 text-sm font-bold uppercase tracking-[0.25em]"
           >
             Build My Taste Profile
           </Link>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="mt-10 space-y-12">
+      <div className="mt-12 space-y-14">
         <SectionRow
           title="Hollywood Hits"
           caption="Popular English-language favorites from the MovieLens-powered catalog."

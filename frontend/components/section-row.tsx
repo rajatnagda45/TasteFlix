@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+
 import { Movie } from "@/types";
 import { MovieCard } from "@/components/movie-card";
 
@@ -23,18 +25,26 @@ export function SectionRow({
   onMovieAction,
 }: SectionRowProps) {
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
+    <section className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white">{title}</h2>
-          {caption ? <p className="mt-1 text-sm text-slate-400">{caption}</p> : null}
+          <h2 className="text-3xl font-black tracking-tight text-white">{title}</h2>
+          {caption ? <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{caption}</p> : null}
         </div>
-        <span className="text-sm text-slate-400">{movies.length} titles</span>
+        <span className="glass-chip w-fit px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">
+          {movies.length} Titles
+        </span>
       </div>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         {loading
           ? Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="aspect-[2/3] animate-pulse rounded-3xl bg-white/10" />
+              <motion.div
+                key={index}
+                initial={{ opacity: 0.35 }}
+                animate={{ opacity: 1 }}
+                transition={{ repeat: Infinity, repeatType: "reverse", duration: 1.05, delay: index * 0.06 }}
+                className="skeleton-shimmer aspect-[2/3] rounded-[28px]"
+              />
             ))
           : movies.map((movie) => (
               <MovieCard
@@ -46,7 +56,7 @@ export function SectionRow({
             ))}
       </div>
       {!loading && movies.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-sm text-slate-400">
+        <div className="cinema-panel p-6 text-sm leading-7 text-slate-400">
           {emptyMessage}
         </div>
       ) : null}
