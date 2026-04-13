@@ -58,7 +58,8 @@ def list_movies(
         updated = False
         if len(search.strip()) >= 3 and tmdb_service.is_enabled():
             for movie in movies[: min(6, limit)]:
-                if has_real_poster(movie) and movie.overview:
+                has_genres = bool(movie.genres and movie.genres.strip() and movie.genres.strip().lower() != "nan")
+                if has_real_poster(movie) and movie.overview and has_genres:
                     continue
                 if enrich_movie_assets(movie):
                     updated = True

@@ -17,7 +17,7 @@ const MOODS: Record<string, string[]> = {
 
 interface RecommendationGridProps {
   items: Recommendation[];
-  onFeedback: (movieId: number, sentiment: "like" | "dislike") => Promise<void>;
+  onFeedback: (movie: Movie, sentiment: "like" | "dislike") => Promise<void>;
   refreshing?: boolean;
 }
 
@@ -49,10 +49,10 @@ export function RecommendationGrid({ items, onFeedback, refreshing = false }: Re
     }
   }
 
-  async function handleFeedback(movieId: number, sentiment: "like" | "dislike") {
-    setFeedbackLoading(movieId);
+  async function handleFeedback(movie: Movie, sentiment: "like" | "dislike") {
+    setFeedbackLoading(movie.id);
     try {
-      await onFeedback(movieId, sentiment);
+      await onFeedback(movie, sentiment);
     } finally {
       setFeedbackLoading(null);
     }
@@ -178,16 +178,16 @@ export function RecommendationGrid({ items, onFeedback, refreshing = false }: Re
                     <button
                       type="button"
                       disabled={refreshing || feedbackLoading === item.movie.id}
-                      onClick={() => handleFeedback(item.movie.id, "like")}
+                      onClick={() => handleFeedback(item.movie, "like")}
                       className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/25 disabled:opacity-60"
                     >
                       <ThumbsUp className="h-4 w-4" />
-                      Like
+                      Want to Watch
                     </button>
                     <button
                       type="button"
                       disabled={refreshing || feedbackLoading === item.movie.id}
-                      onClick={() => handleFeedback(item.movie.id, "dislike")}
+                      onClick={() => handleFeedback(item.movie, "dislike")}
                       className="inline-flex items-center gap-2 rounded-full bg-rose-500/15 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/25 disabled:opacity-60"
                     >
                       <ThumbsDown className="h-4 w-4" />

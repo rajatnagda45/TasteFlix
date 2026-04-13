@@ -113,6 +113,8 @@ class TmdbService:
         matches: list[TmdbMovieMatch] = []
         for item in payload.get("results") or []:
             match = self._build_match(item)
+            if match.tmdb_id and (not match.genres or not match.overview):
+                match = self.get_movie(match.tmdb_id) or match
             if not match.poster_url:
                 continue
             matches.append(match)
@@ -136,6 +138,8 @@ class TmdbService:
         matches: list[TmdbMovieMatch] = []
         for item in payload.get("results") or []:
             match = self._build_match(item)
+            if match.tmdb_id and (not match.genres or not match.overview):
+                match = self.get_movie(match.tmdb_id) or match
             if not match.title:
                 continue
             matches.append(match)

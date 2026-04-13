@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from core.config import get_settings
@@ -84,6 +85,11 @@ def build_unsplash_query(movie: Movie) -> str:
 
 
 def upsert_tmdb_movie(db: Session, match) -> Movie:
+    if match.tmdb_id and (not match.genres or not match.overview):
+        detailed_match = tmdb_service.get_movie(match.tmdb_id)
+        if detailed_match:
+            match = detailed_match
+
     tags = "bollywood indian cinema hindi" if match.original_language in INDIAN_LANGUAGE_CODES else "tmdb search"
     source_movie_id = TMDB_SOURCE_OFFSET + match.tmdb_id
     movie = db.scalar(
@@ -111,7 +117,20 @@ def upsert_tmdb_movie(db: Session, match) -> Movie:
             backdrop_url=match.backdrop_url,
         )
         db.add(movie)
-        db.flush()
+        try:
+            db.flush()
+        except IntegrityError:
+            db.rollback()
+            movie = db.scalar(
+                select(Movie).where(
+                    or_(
+                        Movie.tmdb_id == match.tmdb_id,
+                        Movie.source_movie_id == source_movie_id,
+                    )
+                )
+            )
+            if movie is None:
+                raise
         return movie
 
     movie.title = match.title or movie.title
@@ -132,7 +151,8 @@ def enrich_movie_assets(movie: Movie, force: bool = False) -> bool:
         return False
 
     has_real_poster = bool(movie.poster_url) and not movie.poster_url.startswith("data:image/svg+xml")
-    if has_real_poster and movie.overview and movie.backdrop_url and not force:
+    has_genres = bool(movie.genres and movie.genres.strip() and movie.genres.strip().lower() != "nan")
+    if has_real_poster and movie.overview and movie.backdrop_url and has_genres and not force:
         return False
 
     updated = False

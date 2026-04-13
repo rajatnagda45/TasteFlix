@@ -11,6 +11,12 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<ReturnType<typeof getUser>>(null);
+  const navItems = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/taste", label: "Taste" },
+    { href: "/watchlist", label: "Want to Watch" },
+    { href: "/history", label: "History" },
+  ];
 
   useEffect(() => {
     setUser(getUser());
@@ -21,13 +27,13 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Logo />
         <nav className="flex items-center gap-5 text-sm text-slate-300">
-          {["/dashboard", "/taste", "/history"].map((href) => (
+          {navItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={pathname === href ? "text-white" : "transition hover:text-white"}
             >
-              {href.replace("/", "").replace(/^./, (char) => char.toUpperCase()) || "Home"}
+              {label}
             </Link>
           ))}
           {user ? (

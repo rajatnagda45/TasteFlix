@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { RecommendationGrid } from "@/components/recommendation-grid";
-import { getRecommendationRequest, getResults, getUser, saveResults } from "@/lib/storage";
-import { Recommendation } from "@/types";
+import {
+  getRecommendationRequest,
+  getResults,
+  getUser,
+  removeFromWatchlist,
+  saveResults,
+  saveToWatchlist,
+} from "@/lib/storage";
+import { Movie, Recommendation } from "@/types";
 import { api } from "@/services/api";
 
 
@@ -20,7 +27,7 @@ export default function ResultsPage() {
     setTasteProfile(stored.taste_profile || []);
   }, []);
 
-  async function handleFeedback(movieId: number, sentiment: "like" | "dislike") {
+  async function handleFeedback(movie: Movie, sentiment: "like" | "dislike") {
     const user = getUser();
     if (!user) {
       return;
@@ -33,7 +40,12 @@ export default function ResultsPage() {
 
     setRefreshing(true);
     try {
-      await api.feedback({ movie_id: movieId, sentiment });
+      await api.feedback({ movie_id: movie.id, sentiment });
+      if (sentiment === "like") {
+        saveToWatchlist(movie);
+      } else {
+        removeFromWatchlist(movie.id);
+      }
       const refreshed = await api.recommend({
         ...request,
         user_id: user.id,

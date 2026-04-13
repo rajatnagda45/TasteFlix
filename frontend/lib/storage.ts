@@ -1,11 +1,12 @@
 "use client";
 
-import { AuthResponse, Recommendation, RecommendationRequest, RecommendationResponse } from "@/types";
+import { AuthResponse, Movie, Recommendation, RecommendationRequest, RecommendationResponse } from "@/types";
 
 const TOKEN_KEY = "tasteflix_token";
 const USER_KEY = "tasteflix_user";
 const RESULTS_KEY = "tasteflix_results";
 const REQUEST_KEY = "tasteflix_last_request";
+const WATCHLIST_KEY_PREFIX = "tasteflix_watchlist";
 const RESULTS_VERSION = 2;
 
 export function saveSession(session: AuthResponse) {
@@ -77,4 +78,36 @@ export function getRecommendationRequest(): RecommendationRequest | null {
   }
   const value = localStorage.getItem(REQUEST_KEY);
   return value ? JSON.parse(value) : null;
+}
+
+function getWatchlistKey() {
+  const user = getUser();
+  return `${WATCHLIST_KEY_PREFIX}_${user?.id ?? "guest"}`;
+}
+
+export function getWatchlist(): Movie[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+  const value = localStorage.getItem(getWatchlistKey());
+  if (!value) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveToWatchlist(movie: Movie) {
+  const existing = getWatchlist();
+  const next = [movie, ...existing.filter((item) => item.id !== movie.id)];
+  localStorage.setItem(getWatchlistKey(), JSON.stringify(next));
+}
+
+export function removeFromWatchlist(movieId: number) {
+  const next = getWatchlist().filter((movie) => movie.id !== movieId);
+  localStorage.setItem(getWatchlistKey(), JSON.stringify(next));
 }
