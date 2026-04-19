@@ -41,19 +41,18 @@ export function MovieCard({ movie, subtitle, onSelect, selected, actionLabel, on
             year={movie.year}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,7,18,0.08),rgba(3,7,18,0.22)_32%,rgba(2,6,23,0.94)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/45 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <p className="text-xs uppercase tracking-[0.34em] text-rose-200">
-              {movie.year || "Classic Pick"}
-            </p>
-            <h3 className="mt-2 text-xl font-black text-white">{movie.title}</h3>
-            <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-300">
-              {subtitle || movie.overview || movie.genres}
-            </p>
-            <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-[0.7rem] uppercase tracking-[0.28em] text-slate-200">
-              {selected ? "Selected" : movie.genres || "TasteFlix Pick"}
-            </div>
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,7,18,0.04),transparent_45%,rgba(2,6,23,0.22)_100%)]" />
+        </div>
+        <div className="relative border-t border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.92),rgba(3,7,18,0.98))] p-4">
+          <p className="text-xs uppercase tracking-[0.34em] text-rose-200">
+            {movie.year || "Classic Pick"}
+          </p>
+          <h3 className="mt-2 line-clamp-2 text-xl font-black leading-7 text-white">{movie.title}</h3>
+          <p className="mt-2 line-clamp-2 min-h-12 text-sm leading-6 text-slate-300">
+            {subtitle || movie.overview || movie.genres}
+          </p>
+          <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-[0.7rem] uppercase tracking-[0.28em] text-slate-200">
+            {selected ? "Selected" : movie.genres || "TasteFlix Pick"}
           </div>
         </div>
       </button>
