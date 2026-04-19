@@ -126,6 +126,137 @@ a {
     pointer-events: none;
   }
 
+  .hero-bg-float {
+    animation: hero-bg-float 18s ease-in-out infinite alternate;
+    transform: scale(1.04);
+  }
+
+  .hero-aurora {
+    background:
+      linear-gradient(115deg, rgba(168, 85, 247, 0.18), transparent 28%, rgba(56, 189, 248, 0.16) 54%, rgba(244, 63, 94, 0.14) 78%, transparent),
+      radial-gradient(circle at 22% 24%, rgba(236, 72, 153, 0.16), transparent 30%),
+      radial-gradient(circle at 80% 58%, rgba(56, 189, 248, 0.16), transparent 28%);
+    animation: aurora-drift 14s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+
+  .hero-particles {
+    background-image:
+      radial-gradient(circle, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(125, 211, 252, 0.48) 0 1px, transparent 1.5px),
+      radial-gradient(circle, rgba(244, 114, 182, 0.42) 0 1px, transparent 1.5px);
+    background-position:
+      0 0,
+      34px 48px,
+      82px 22px;
+    background-size:
+      140px 140px,
+      190px 190px,
+      250px 250px;
+    animation: particles-drift 28s linear infinite;
+    will-change: background-position;
+  }
+
+  .premium-gradient-text {
+    animation: premium-gradient-shift 7s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 18px rgba(125, 211, 252, 0.3));
+  }
+
+  .premium-gradient-button {
+    position: relative;
+    overflow: hidden;
+    background-image: linear-gradient(120deg, #ec4899, #a855f7, #22d3ee, #ec4899);
+    background-size: 240% 240%;
+    animation:
+      premium-gradient-shift 6s ease-in-out infinite,
+      premium-button-pulse 3.8s ease-in-out infinite;
+  }
+
+  .premium-gradient-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+    transition: transform 650ms ease;
+  }
+
+  .premium-gradient-button:hover::before {
+    transform: translateX(120%) skewX(-18deg);
+  }
+
+  .premium-glass-panel {
+    box-shadow:
+      0 0 60px rgba(139, 92, 246, 0.3),
+      0 28px 90px rgba(2, 6, 23, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -40px 80px rgba(15, 23, 42, 0.18);
+  }
+
+  .premium-glass-panel::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(125, 211, 252, 0.12), rgba(236, 72, 153, 0.12), rgba(255, 255, 255, 0.06));
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  .front-page-continuation {
+    background:
+      radial-gradient(circle at 16% 8%, rgba(236, 72, 153, 0.16), transparent 26rem),
+      radial-gradient(circle at 66% 22%, rgba(139, 92, 246, 0.2), transparent 30rem),
+      radial-gradient(circle at 88% 48%, rgba(56, 189, 248, 0.12), transparent 28rem),
+      linear-gradient(180deg, #070b18 0%, #090d1d 38%, #050816 100%);
+  }
+
+  .front-page-continuation::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 78%, transparent);
+  }
+
+  .front-page-continuation::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at top, rgba(255, 255, 255, 0.06), transparent 34rem),
+      radial-gradient(ellipse at center, transparent 38%, rgba(0, 0, 0, 0.28) 82%, rgba(0, 0, 0, 0.62) 100%);
+  }
+
+  .premium-section-card {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+      radial-gradient(circle at 18% 0%, rgba(244, 114, 182, 0.1), transparent 32%),
+      radial-gradient(circle at 90% 100%, rgba(56, 189, 248, 0.08), transparent 34%);
+    box-shadow:
+      0 22px 70px rgba(2, 6, 23, 0.42),
+      0 0 34px rgba(139, 92, 246, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .premium-section-panel {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.032)),
+      radial-gradient(circle at 10% 0%, rgba(236, 72, 153, 0.11), transparent 30%),
+      radial-gradient(circle at 88% 12%, rgba(56, 189, 248, 0.09), transparent 28%);
+    box-shadow:
+      0 28px 90px rgba(2, 6, 23, 0.5),
+      0 0 52px rgba(139, 92, 246, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  }
+
   .glass-chip {
     @apply rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-xl;
   }
@@ -209,6 +340,69 @@ a {
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes hero-bg-float {
+  0% {
+    transform: translate3d(-0.8%, -0.6%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(0.8%, 0.6%, 0) scale(1.07);
+  }
+}
+
+@keyframes aurora-drift {
+  0% {
+    opacity: 0.48;
+    transform: translate3d(-1.4%, -0.8%, 0) scale(1);
+  }
+  100% {
+    opacity: 0.78;
+    transform: translate3d(1.2%, 1%, 0) scale(1.04);
+  }
+}
+
+@keyframes particles-drift {
+  100% {
+    background-position:
+      140px 80px,
+      224px 238px,
+      332px 272px;
+  }
+}
+
+@keyframes premium-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes premium-button-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 30px rgba(236, 72, 153, 0.36),
+      0 0 44px rgba(34, 211, 238, 0.24);
+  }
+  50% {
+    box-shadow:
+      0 0 42px rgba(236, 72, 153, 0.48),
+      0 0 58px rgba(34, 211, 238, 0.32);
+  }
+}
+
+@media (max-width: 640px), (prefers-reduced-motion: reduce) {
+  .hero-bg-float,
+  .hero-aurora,
+  .hero-particles,
+  .premium-gradient-text,
+  .premium-gradient-button {
+    animation-duration: 0.001ms;
+    animation-iteration-count: 1;
   }
 }
 

@@ -30,7 +30,7 @@ export function Navbar() {
         initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeInOut" }}
-        className="cinema-panel mx-auto max-w-7xl border-white/10 bg-[#08101f]/70"
+        className="cinema-panel mx-auto max-w-7xl border-white/10 bg-[#07101f]/55 shadow-[0_24px_80px_rgba(2,6,23,0.42),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl"
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
