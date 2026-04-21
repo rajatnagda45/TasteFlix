@@ -2,7 +2,7 @@
 
 > **Beyond Watching. Into Intelligence.**
 
-TasteFlix is a full-stack AI-powered movie recommendation platform that delivers personalized movie suggestions using hybrid machine learning techniques, real-time user feedback, and explainable AI.
+TasteFlix is a full-stack AI-powered movie recommendation platform that delivers personalized movie suggestions using hybrid machine learning techniques, real-time user feedback, and Explainable AI.
 
 ---
 
