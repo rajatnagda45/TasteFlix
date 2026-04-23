@@ -15,6 +15,53 @@ export interface Movie {
   backdrop_url: string | null;
 }
 
+export interface TmdbVideo {
+  key: string;
+  name: string;
+  site: string;
+  type: string;
+  source: "tmdb" | "youtube";
+}
+
+export interface MovieCastMember {
+  id: number;
+  name: string;
+  character: string | null;
+  profile_url: string | null;
+}
+
+export interface WatchProvider {
+  provider_id: number;
+  provider_name: string;
+  logo_url: string | null;
+}
+
+export interface SimilarTmdbMovie {
+  tmdb_id: number;
+  title: string;
+  year: number | null;
+  overview: string | null;
+  poster_url: string | null;
+  backdrop_url: string | null;
+  vote_average: number | null;
+}
+
+export interface MovieDetail {
+  movie: Movie;
+  runtime: number | null;
+  release_date: string | null;
+  imdb_id: string | null;
+  imdb_rating: number | null;
+  tmdb_rating: number | null;
+  tmdb_vote_count: number | null;
+  trailer: TmdbVideo | null;
+  videos: TmdbVideo[];
+  cast: MovieCastMember[];
+  directors: string[];
+  providers: WatchProvider[];
+  similar: SimilarTmdbMovie[];
+}
+
 export interface User {
   id: number;
   full_name: string;

@@ -50,6 +50,12 @@ class TmdbService:
         except (HTTPError, URLError, TimeoutError):
             return None
 
+    def image_url(self, path: str | None, size: str = "w500") -> str | None:
+        if not path:
+            return None
+        base = self.image_base_url.rsplit("/", 1)[0]
+        return f"{base}/{size}{path}"
+
     def _build_match(self, payload: dict[str, Any]) -> TmdbMovieMatch:
         poster_path = payload.get("poster_path")
         backdrop_path = payload.get("backdrop_path")
@@ -122,6 +128,42 @@ class TmdbService:
                 break
         return matches
 
+    def discover_popular_movies(
+        self,
+        language: str,
+        region: str,
+        limit: int = 12,
+        release_date_gte: str | None = None,
+        hydrate_details: bool = True,
+    ) -> list[TmdbMovieMatch]:
+        params: dict[str, Any] = {
+            "with_original_language": language,
+            "region": region,
+            "sort_by": "popularity.desc",
+            "vote_count.gte": 80,
+            "include_adult": "false",
+            "include_video": "false",
+            "page": 1,
+        }
+        if release_date_gte:
+            params["primary_release_date.gte"] = release_date_gte
+
+        payload = self._request("/discover/movie", params)
+        if not payload:
+            return []
+
+        matches: list[TmdbMovieMatch] = []
+        for item in payload.get("results") or []:
+            match = self._build_match(item)
+            if hydrate_details and match.tmdb_id and (not match.genres or not match.overview):
+                match = self.get_movie(match.tmdb_id) or match
+            if not match.title or not match.poster_url:
+                continue
+            matches.append(match)
+            if len(matches) >= limit:
+                break
+        return matches
+
     def search_movies(self, query: str, limit: int = 10) -> list[TmdbMovieMatch]:
         payload = self._request(
             "/search/movie",
@@ -146,3 +188,12 @@ class TmdbService:
             if len(matches) >= limit:
                 break
         return matches
+
+    def get_movie_detail_payload(self, tmdb_id: int, region: str = "IN") -> dict[str, Any] | None:
+        return self._request(
+            f"/movie/{tmdb_id}",
+            {
+                "append_to_response": "videos,credits,watch/providers,similar",
+                "region": region,
+            },
+        )

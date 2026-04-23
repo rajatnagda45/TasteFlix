@@ -155,6 +155,7 @@ export function MovieSelector({
               movie={movie}
               selected={selected.some((item) => item.movie.id === movie.id)}
               onSelect={() => toggleMovie(movie)}
+              posterOnly
             />
           ))}
       </div>

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+import { DashboardSearch } from "@/components/dashboard-search";
+import { MovieDetailOverlay } from "@/components/movie-detail-overlay";
 import { SectionRow } from "@/components/section-row";
 import { api } from "@/services/api";
 import { Movie } from "@/types";
@@ -14,6 +16,7 @@ export default function DashboardPage() {
   const [bollywood, setBollywood] = useState<Movie[]>([]);
   const [catalog, setCatalog] = useState<Movie[]>([]);
   const [loading, setLoading] = useState({ hollywood: true, bollywood: true, catalog: true });
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -75,11 +78,20 @@ export default function DashboardPage() {
       </motion.section>
 
       <div className="mt-12 space-y-14">
+        <DashboardSearch
+          onMovieSelect={setSelectedMovie}
+          suggestionSeeds={[
+            ...hollywood.slice(0, 3).map((movie) => movie.title),
+            ...bollywood.slice(0, 2).map((movie) => movie.title),
+          ]}
+        />
         <SectionRow
           title="Hollywood Hits"
           caption="Popular English-language favorites from the MovieLens-powered catalog."
           movies={hollywood}
           loading={loading.hollywood}
+          onMovieSelect={setSelectedMovie}
+          posterOnly
         />
         <SectionRow
           title="Bollywood Picks"
@@ -87,14 +99,20 @@ export default function DashboardPage() {
           movies={bollywood}
           loading={loading.bollywood}
           emptyMessage="No Bollywood picks found locally yet. Run the TMDB sync from the backend admin endpoint to enrich more."
+          onMovieSelect={setSelectedMovie}
+          posterOnly
         />
         <SectionRow
           title="Browse the Catalog"
           caption="A broader mix from the recommendation catalog."
           movies={catalog}
           loading={loading.catalog}
+          onMovieSelect={setSelectedMovie}
+          posterOnly
         />
       </div>
+
+      <MovieDetailOverlay movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
     </main>
   );
 }

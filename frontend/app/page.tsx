@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, Play, Sparkles, WandSparkles, Waypoints } from "lucide-react";
 
+import { MovieDetailOverlay } from "@/components/movie-detail-overlay";
+import { SectionRow } from "@/components/section-row";
 import { getUser } from "@/lib/storage";
+import { api } from "@/services/api";
+import { Movie } from "@/types";
 
 
 const features = [
@@ -92,13 +96,39 @@ const faqs = [
   },
 ];
 
-
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [heroLight, setHeroLight] = useState({ x: 50, y: 42 });
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [popularLoading, setPopularLoading] = useState(true);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getUser()));
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    api.homeTrending()
+      .then((movies) => {
+        if (active) {
+          setPopularMovies(movies);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setPopularMovies([]);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setPopularLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -240,7 +270,19 @@ export default function HomePage() {
         <div className="hero-particles pointer-events-none absolute inset-0 opacity-20" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black/10 via-[#070b18]/80 to-transparent" />
 
-        <section className="page-shell pb-24 pt-10">
+        <section className="page-shell pb-16 pt-10">
+          <SectionRow
+            title="Popular Movies"
+            caption="Fresh trending Bollywood + Hollywood picks, separate from the dashboard rows, with rich JustWatch-style details on click."
+            movies={popularMovies}
+            loading={popularLoading}
+            emptyMessage="Popular movies are not available right now."
+            onMovieSelect={setSelectedMovie}
+            posterOnly
+          />
+        </section>
+
+        <section className="page-shell pb-24">
           <div className="grid gap-6 md:grid-cols-3">
             {features.map((feature) => (
               <motion.article
@@ -331,6 +373,8 @@ export default function HomePage() {
           </div>
         </section>
       </div>
+
+      <MovieDetailOverlay movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
     </main>
   );
 }

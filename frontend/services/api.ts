@@ -1,4 +1,4 @@
-import { AuthResponse, FeedbackResponse, HistoryItem, Movie, RecommendationRequest, RecommendationResponse } from "@/types";
+import { AuthResponse, FeedbackResponse, HistoryItem, Movie, MovieDetail, RecommendationRequest, RecommendationResponse, TmdbVideo } from "@/types";
 import { clearSession, getUser } from "@/lib/storage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -44,7 +44,12 @@ export const api = {
     }),
   movies: (search?: string) =>
     request<Movie[]>(`/movies${search ? `?search=${encodeURIComponent(search)}&limit=40` : "?limit=24"}`),
+  searchMovies: (query: string, limit = 8) =>
+    request<Movie[]>(`/movies?search=${encodeURIComponent(query)}&limit=${limit}`),
+  movieDetail: (movieId: number) => request<MovieDetail>(`/movies/${movieId}/detail`),
+  movieTrailer: (movieId: number) => request<TmdbVideo | null>(`/movies/${movieId}/trailer`),
   trending: () => request<Movie[]>("/movies/trending?limit=12"),
+  homeTrending: () => request<Movie[]>("/movies/home-trending?limit=12"),
   bollywood: () => request<Movie[]>("/movies/bollywood?limit=12"),
   async recommend(payload: RecommendationRequest) {
     try {

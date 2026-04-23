@@ -7,7 +7,9 @@ const USER_KEY = "tasteflix_user";
 const RESULTS_KEY = "tasteflix_results";
 const REQUEST_KEY = "tasteflix_last_request";
 const WATCHLIST_KEY_PREFIX = "tasteflix_watchlist";
+const RECENT_SEARCHES_KEY = "tasteflix_recent_searches";
 const RESULTS_VERSION = 2;
+const MAX_RECENT_SEARCHES = 6;
 
 export function saveSession(session: AuthResponse) {
   localStorage.setItem(TOKEN_KEY, session.access_token);
@@ -110,4 +112,35 @@ export function saveToWatchlist(movie: Movie) {
 export function removeFromWatchlist(movieId: number) {
   const next = getWatchlist().filter((movie) => movie.id !== movieId);
   localStorage.setItem(getWatchlistKey(), JSON.stringify(next));
+}
+
+export function getRecentSearches(): string[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+  const value = localStorage.getItem(RECENT_SEARCHES_KEY);
+  if (!value) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveRecentSearch(query: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const normalized = query.trim();
+  if (!normalized) {
+    return;
+  }
+  const next = [
+    normalized,
+    ...getRecentSearches().filter((item) => item.toLowerCase() !== normalized.toLowerCase()),
+  ].slice(0, MAX_RECENT_SEARCHES);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
 }

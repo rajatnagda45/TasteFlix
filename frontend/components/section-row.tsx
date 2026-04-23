@@ -13,6 +13,8 @@ interface SectionRowProps {
   emptyMessage?: string;
   actionLabel?: string;
   onMovieAction?: (movie: Movie) => void;
+  onMovieSelect?: (movie: Movie) => void;
+  posterOnly?: boolean;
 }
 
 export function SectionRow({
@@ -23,6 +25,8 @@ export function SectionRow({
   emptyMessage = "No titles available yet.",
   actionLabel,
   onMovieAction,
+  onMovieSelect,
+  posterOnly = false,
 }: SectionRowProps) {
   return (
     <section className="space-y-5">
@@ -50,8 +54,10 @@ export function SectionRow({
               <MovieCard
                 key={movie.id}
                 movie={movie}
+                onSelect={onMovieSelect ? () => onMovieSelect(movie) : undefined}
                 actionLabel={actionLabel}
                 onAction={onMovieAction ? () => onMovieAction(movie) : undefined}
+                posterOnly={posterOnly}
               />
             ))}
       </div>

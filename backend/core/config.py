@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     tmdb_api_key: str | None = None
     tmdb_base_url: str = "https://api.themoviedb.org/3"
     tmdb_image_base_url: str = "https://image.tmdb.org/t/p/w500"
+    youtube_api_key: str | None = None
+    youtube_base_url: str = "https://www.googleapis.com/youtube/v3"
     unsplash_access_key: str | None = None
     unsplash_secret_key: str | None = None
     unsplash_base_url: str = "https://api.unsplash.com"
