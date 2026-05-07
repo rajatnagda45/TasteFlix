@@ -28,6 +28,11 @@ function formatRating(value: number | null | undefined) {
   return typeof value === "number" ? value.toFixed(1) : "N/A";
 }
 
+function getWatchNowUrl(imdbId: string | null | undefined, tmdbId: number | null | undefined) {
+  const mediaId = imdbId || (typeof tmdbId === "number" ? String(tmdbId) : null);
+  return mediaId ? `https://vaplayer.ru/embed/movie/${mediaId}` : null;
+}
+
 export function MovieDetailOverlay({ movie, onClose }: MovieDetailOverlayProps) {
   const [detail, setDetail] = useState<MovieDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,6 +59,7 @@ export function MovieDetailOverlay({ movie, onClose }: MovieDetailOverlayProps) 
     () => (movie ? getWatchlist().some((item) => item.id === movie.id) : false),
     [movie, toast],
   );
+  const watchNowUrl = getWatchNowUrl(detail?.imdb_id, activeMovie?.tmdb_id);
 
   useEffect(() => {
     if (!movie) {
@@ -217,10 +223,16 @@ export function MovieDetailOverlay({ movie, onClose }: MovieDetailOverlayProps) 
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a
-                    href={activeMovie.tmdb_id ? `https://www.themoviedb.org/movie/${activeMovie.tmdb_id}/watch` : "#"}
+                    href={watchNowUrl ?? "#"}
                     target="_blank"
-                    rel="noreferrer"
-                    className="premium-button gap-2 bg-[linear-gradient(135deg,rgba(244,63,94,0.96),rgba(168,85,247,0.86),rgba(56,189,248,0.9))] px-5 py-3 text-sm font-bold"
+                    rel="noreferrer noopener"
+                    aria-disabled={!watchNowUrl}
+                    onClick={(event) => {
+                      if (!watchNowUrl) {
+                        event.preventDefault();
+                      }
+                    }}
+                    className="premium-button gap-2 bg-[linear-gradient(135deg,rgba(244,63,94,0.96),rgba(168,85,247,0.86),rgba(56,189,248,0.9))] px-5 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Watch Now
